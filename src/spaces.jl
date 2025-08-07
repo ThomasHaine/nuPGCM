@@ -22,11 +22,11 @@ function Spaces(model; order=2)
     reffe_b = ReferenceFE(lagrangian, Float64, order;   space=:P)
 
     # test FESpaces
-    U_test = TestFESpace(model, reffe_u, conformity=:H1, dirichlet_tags=["bot"])
-    V_test = TestFESpace(model, reffe_v, conformity=:H1, dirichlet_tags=["bot"])
-    W_test = TestFESpace(model, reffe_w, conformity=:H1, dirichlet_tags=["bot", "sfc"])
+    U_test = TestFESpace(model, reffe_u, conformity=:H1, dirichlet_tags=["Bottom", "Slope", "Wall"])
+    V_test = TestFESpace(model, reffe_v, conformity=:H1, dirichlet_tags=["Bottom", "Slope", "Wall"])
+    W_test = TestFESpace(model, reffe_w, conformity=:H1, dirichlet_tags=["Bottom", "Slope", "Wall"])
     P_test = TestFESpace(model, reffe_p, conformity=:H1, constraint=:zeromean)
-    B_test = TestFESpace(model, reffe_b, conformity=:H1, dirichlet_tags=["sfc"])
+    B_test = TestFESpace(model, reffe_b, conformity=:H1, dirichlet_tags=["CoolingPatch", "FresheningPatch"])
     X_test = MultiFieldFESpace([U_test, V_test, W_test, P_test])
 
     # trial FESpaces with Dirichlet values

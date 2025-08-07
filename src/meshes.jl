@@ -14,6 +14,11 @@ Returns a struct holding mesh-related data.
 """
 function Mesh(ifile)
     model = GmshDiscreteModel(ifile)
+
+    labels = get_face_labeling(model)
+    label_names = model.face_labeling.tag_to_name
+    @info "Boundary labels: " label_names
+
     spaces = Spaces(model)
     Ω = Triangulation(model)
     dΩ = Measure(Ω, 4)
