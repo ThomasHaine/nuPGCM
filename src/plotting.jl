@@ -299,9 +299,9 @@ function plot_profiles(cache::Tuple, ux::CellField, uy::CellField, uz::CellField
     bz_mask = (isnan.(bzs) .== 0)
 
     # # print integrals
-    # @printf("∫ u dz = %e\n", trapz(uxs[ux_mask], z[ux_mask]))
-    # @printf("∫ v dz = %e\n", trapz(uys[uy_mask], z[uy_mask]))
-    # @printf("∫ w dz = %e\n", trapz(uzs[uz_mask], z[uz_mask]))
+    @printf("∫ u dz = %e\n", trapz(uxs[ux_mask], z[ux_mask]))
+    @printf("∫ v dz = %e\n", trapz(uys[uy_mask], z[uy_mask]))
+    @printf("∫ w dz = %e\n", trapz(uzs[uz_mask], z[uz_mask]))
 
     # plot
     fig, ax = plt.subplots(1, 4, figsize=(8, 3.2))
@@ -321,7 +321,7 @@ function plot_profiles(cache::Tuple, ux::CellField, uy::CellField, uz::CellField
         a.spines["left"].set_visible(false)
         a.axvline(0, color="k", linewidth=0.5, linestyle="-")
     end
-    ax[4].set_xlim(0, 1.1*nan_max(abs.(bzs)))
+    #ax[4].set_xlim(0, 1.1*nan_max(abs.(bzs)))
     ax[1].plot(uxs[ux_mask], z[ux_mask])
     ax[2].plot(uys[uy_mask], z[uy_mask])
     ax[3].plot(uzs[uz_mask], z[uz_mask])
