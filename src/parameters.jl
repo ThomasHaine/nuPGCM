@@ -4,4 +4,5 @@ struct Parameters{T}
     μϱ::T
     N²::T
     Δt::T
+    H::Function
 end
