@@ -119,7 +119,6 @@ function run!(model::Model, t_final; t_save=0, t_plot=0)
         end
 
         if mod(i, n_plot) == 0
-            # sim_plots(model, x->(1 - x[1]^2 - x[2]^2)*model.params.α, model.state.t) # FIXME need to allow for general H
             sim_plots(model, model.params.H, model.state.t)
         end
     end

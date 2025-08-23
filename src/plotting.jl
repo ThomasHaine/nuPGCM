@@ -346,6 +346,7 @@ function sim_plots(model::Model, H, i_save)
     v = model.state.v
     w = model.state.w
     b = model.state.b
+    p = model.state.p
     N² = model.params.N²
     t = model.state.t
     dim = model.mesh.dim
@@ -359,13 +360,14 @@ function sim_plots(model::Model, H, i_save)
         cache_u_slice  = plot_slice(u, b, N²; bbox, y=0.0, t=t, cb_label=L"Zonal flow $u$",      fname=@sprintf("%s/images/u_yslice_%03d.png", out_dir, i_save))
         cache_v_slice  = plot_slice(v, b, N²; bbox, y=0.0, t=t, cb_label=L"Meridional flow $v$", fname=@sprintf("%s/images/v_yslice_%03d.png", out_dir, i_save))
         cache_w_slice  = plot_slice(w, b, N²; bbox, y=0.0, t=t, cb_label=L"Vertical flow $w$",   fname=@sprintf("%s/images/w_yslice_%03d.png", out_dir, i_save))
+        cache_p_slice  = plot_slice(p, b, N²; bbox, y=0.0, t=t, cb_label=L"Pressure $p$",        fname=@sprintf("%s/images/p_yslice_%03d.png", out_dir, i_save))
         if dim == 3 # surface plot only in 3D
             cache_u_sfc = plot_slice(u, v, b, N²; z=0.0, t=t, cb_label=L"Horizontal speed $\sqrt{u^2 + v^2}$", fname=@sprintf("%s/images/u_sfc_%03d.png", out_dir, i_save))
         end
     end
 
     if dim == 2
-        return cache_profiles, cache_u_slice, cache_v_slice, cache_w_slice
+        return cache_profiles, cache_u_slice, cache_v_slice, cache_w_slice, cache_p_slice
     else
         return cache_profiles, cache_u_slice, cache_v_slice, cache_w_slice, cache_u_sfc
     end
