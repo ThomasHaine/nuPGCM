@@ -15,11 +15,9 @@ Build a struct holding mesh-related data.
 """
 function Mesh(ifile; degree=4)
     model = GmshDiscreteModel(ifile)
-    label_names = model.face_labeling.tag_to_name
-    @info "Boundary labels: " label_names
     Ω = Triangulation(model)
     dΩ = Measure(Ω, degree)
-    Γ = BoundaryTriangulation(model, tags=["Surface"])
+    Γ = BoundaryTriangulation(model, tags=["surface"])
     dΓ = Measure(Γ, degree)
     return Mesh(model, Ω, dΩ, Γ, dΓ)
 end
