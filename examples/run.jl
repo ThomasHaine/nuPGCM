@@ -25,7 +25,7 @@ H(x) = α*(1 - x[1]^2 - x[2]^2)  # bathymetry
 τˣ(x) = 0  # zonal wind stress
 τʸ(x) = 0  # meridional wind stress
 b₀(x) = 0  # surface buoyancy boundary condition
-force_build_inversion = false
+force_build_inversion = true
 force_build_evolution = true
 
 # mesh (see meshes/mesh_bowl2D.jl for an example of how to generate a mesh with Gmsh)

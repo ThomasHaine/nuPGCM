@@ -16,8 +16,8 @@ function generate_bowl_mesh_2D(h, α)
     gmsh.model.geo.addPlaneSurface([1], 1)
     gmsh.model.geo.synchronize()
     gmsh.model.addPhysicalGroup(0, [1, 3], 3, "coastline")
-    gmsh.model.addPhysicalGroup(1, [1], 1, "bottom")
-    gmsh.model.addPhysicalGroup(1, [2], 2, "surface")
+    gmsh.model.addPhysicalGroup(1, [1], 1, "Bottom")
+    gmsh.model.addPhysicalGroup(1, [2], 2, "Surface")
     gmsh.model.addPhysicalGroup(2, [1], 4, "interior")
 
     # generate and save
@@ -26,7 +26,12 @@ function generate_bowl_mesh_2D(h, α)
     gmsh.finalize()
 end
 
-h = 1e-1
-α = 1/2
-@info @sprintf("2εₘᵢₙ = 2h/(α√2) = %1.1e\n", 2h/(α√2))
-generate_bowl_mesh_2D(h, α)
+# h = 1e-1
+# α = 1/2
+# @info @sprintf("2εₘᵢₙ = 2h/(α√2) = %1.1e\n", 2h/(α√2))
+generate_bowl_mesh_2D(hh, α)
+
+# TWNH adds:
+# Definition of domain depth:
+# This must be consistent with the geometry above!
+depth(x) = α*(1 - x[1]^2 - x[2]^2)
