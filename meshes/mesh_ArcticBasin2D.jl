@@ -5,7 +5,6 @@
 using Gmsh: gmsh
 using GridapGmsh
 using Gridap
-# using Printf
 
 function generate_arctic_basin2D(h, α; savefile="TestArcticBasin2D.msh", show_gui=false, DEBUG=false)
 
@@ -55,7 +54,7 @@ function generate_arctic_basin2D(h, α; savefile="TestArcticBasin2D.msh", show_g
 
     # generate and save
     gmsh.model.mesh.generate(2)
-    gmsh.write(savefile)
+    gmsh.write("meshes/" * savefile * ".msh")
     gmsh.finalize()
 
     return H, dH, R, r
