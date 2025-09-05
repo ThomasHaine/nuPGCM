@@ -374,7 +374,7 @@ function sim_plots(model::Model, i_save)
     b = model.state.b
     N² = model.params.N²
     t = model.state.t
-    dim = get_dim(model.fed.mesh)
+    dim = get_dim(model.fe_data.mesh)
     α = model.params.α
 
     # define bounding box
