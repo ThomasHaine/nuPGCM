@@ -16,7 +16,8 @@ function generate_arctic_basin2D(h, α; savefile="TestArcticBasin2D.msh", show_g
     R  = 1.0
     H  = -α*R
     dH = 0.2 * H       # Can't have dH equal to zero, but it can be very small.
-    r  = R * 0.4
+    # r  = R * 0.4
+    r  = R * 0.95   # Make r very close to R so that the slope is nearly vertical.
     slope_gradient = (H - dH)/(R - r)
     @info "Slope gradient (must be negative): " slope_gradient
 
