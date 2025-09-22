@@ -15,6 +15,12 @@ function generate_bowl_mesh_2D(h, α)
     gmsh.model.geo.addCurveLoop(1:2, 1)
     gmsh.model.geo.addPlaneSurface([1], 1)
     gmsh.model.geo.synchronize()
+
+    # TWNH:
+    # Debug: Shows geometry entities before they get associated with PhysicalGroups and PhysicalNames.
+    # The addPhysicalGroup commands below select the right entities, but in the final .msh file the names are not associated with the entities.
+    # gmsh.fltk.run()
+
     gmsh.model.addPhysicalGroup(0, [1, 3], 3, "coastline")
     gmsh.model.addPhysicalGroup(1, [1], 1, "Bottom")
     gmsh.model.addPhysicalGroup(1, [2], 2, "Surface")

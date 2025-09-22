@@ -3,15 +3,21 @@ using Printf
 using GridapGmsh
 using Gridap
 
-function generate_exp_bowl_mesh_2D(h, α, depth; savefile="Test_exp_bowl2D.msh", DEBUG=false, show_gui=false )
+function generate_exp_bowl_mesh_2D(h, depth; savefile="Test_exp_bowl2D.msh", DEBUG=false, show_gui=false )
+    # This function generates a 2D mesh for a bowl-shaped domain with depth profile given by the function `depth`. 
+    # It's a template function: you provide the depth function as an argument, although it must take care of the edges at x = ±1.
     
     gmsh.initialize()
     gmsh.option.setNumber("General.Terminal", 1)
     gmsh.model.add("exp_bowl2D")
 
-    # Range of r and corresponding depth values for mesh refinement
-    rs = range(-1, 1, length=32) # radial points for mesh refinement
-    Hs = depth.(rs)              # corresponding depths
+    # Range of r and corresponding depth values for mesh refinement.
+    # If depth goes to zero at the edges, like for Henry's parabolic bowl, then the mesh will be very fine there, and Gmsh may error.
+    # So we avoid the endpoints -1 and 1 by a small amount if the depth goes to zero there.
+        # xs = range(-1.0+h/2.0, 1.0-h/2.0, length=round(Int,2.0/h))     # radial points for mesh refinement
+    xs = range(-1.0, 1.0, length=round(Int,2.0/h))                       # radial points for mesh refinement
+    pts = [[x, 0.0] for x in xs]                                         # E.g. along x-axis
+    Hs = depth.(pts)                                                     # corresponding depths
 
     # Setup domain with points at (-1,0,0) and (1,0,0) on the surface.
     point1 = gmsh.model.geo.addPoint(-1, 0, 0, h)
@@ -20,12 +26,12 @@ function generate_exp_bowl_mesh_2D(h, α, depth; savefile="Test_exp_bowl2D.msh",
     # Add points along the depth curve
     point_tags = Int[]
 
-    for (r, H) in zip(rs, Hs)
-        push!(point_tags, gmsh.model.geo.add_point(r, 0, H, h))
+    for (x, H) in zip(xs, Hs)
+        push!(point_tags, gmsh.model.geo.add_point(x, 0, -H, h))
     end
     if(DEBUG)
         println("Point tags along depth curve: ", point_tags)
-        println("Corresponding radial positions: ", rs)
+        println("Corresponding radial positions: ", xs)
         println("Corresponding depths: ", Hs)
     end
 
@@ -44,21 +50,25 @@ function generate_exp_bowl_mesh_2D(h, α, depth; savefile="Test_exp_bowl2D.msh",
     # 4. Line from point2 back to point1 (to close the loop)
     push!(curve_tags, gmsh.model.geo.add_line(point2, point1))
 
+    if DEBUG
+        gmsh.model.geo.synchronize()
+        gmsh.fltk.run()
+    end
+
     # Now add the loop using those curves
     gmsh.model.geo.addCurveLoop(curve_tags, 1)
-    gmsh.model.geo.synchronize()
 
     # Debug: Shows geometry entities before they get associated with PhysicalGroups and PhysicalNames.
     if DEBUG
+        gmsh.model.geo.synchronize()
         gmsh.fltk.run()
     end
 
     gmsh.model.geo.addPlaneSurface([1], 1)
     gmsh.model.geo.synchronize()
-    gmsh.model.addPhysicalGroup(1, [1, 3], 3, "coastline")
-    gmsh.model.addPhysicalGroup(1, [2], 1, "Bottom")
+    gmsh.model.addPhysicalGroup(1, [1, 2, 3], 1, "Bottom")
     gmsh.model.addPhysicalGroup(1, [4], 2, "Surface")
-    gmsh.model.addPhysicalGroup(2, [1], 4, "interior")
+    gmsh.model.addPhysicalGroup(2, [1], 4, "int")
 
     if show_gui
         gmsh.fltk.run()
@@ -81,14 +91,14 @@ end
 
 # Parameters.
 β  = 3700.0 / 300.0  # H₀ / H₁ from Nøst & Isachsen (2003)
-depth(r) = -α/(β + 1) * (β * exp(-r^2) - 1)
+depth(x) = α/(β + 1) * (β * exp(-(x[1]^2 + x[2]^2)) - 1)
+# depth(x) = α*(1 - x[1]^2 - x[2]^2)          # Parabolic bowl for testing. Note that this goes to zero at the edges x = ±1.
 
 function test_mesh_exp_bowl2D()
 # Usage example:
-    α  = 1
     hh = 0.1
     filename = "test_exp_bowl2D.msh"
-    generate_exp_bowl_mesh_2D(hh, α, depth; savefile=filename,DEBUG=false, show_gui=false)
+    generate_exp_bowl_mesh_2D(hh, depth; savefile=filename,DEBUG=false, show_gui=false)
 
 # Test read to make sure that the Physical labels are correct. View the .msh file in Gmsh too.
     model = GmshDiscreteModel(filename)
