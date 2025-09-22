@@ -140,7 +140,8 @@ function plot_slice(cache::Tuple, u::CellField, b::CellField; t=nothing, fname="
     img = ax.pcolormesh(x1, x2, us', shading="nearest", cmap="RdBu_r", vmin=-cb_max, vmax=cb_max, rasterized=true) # need to use nearest for NaNs in us
     cb = plt.colorbar(img, ax=ax, label=cb_label, fraction=0.025)
     cb.ax.ticklabel_format(style="sci", scilimits=(-2, 2), useMathText=true)
-    ax.contour(x1, x2, bs', colors="k", linewidths=0.5, linestyles="-", alpha=0.3, levels=range(nan_min(bs), nan_max(bs), length=21)[2:end-1])
+    cs = ax.contour(x1, x2, bs', colors="k", linewidths=0.5, linestyles="-", alpha=0.3, levels=range(nan_min(bs), nan_max(bs), length=21)[2:end-1])
+    ax.clabel(cs, inline=true, fontsize=4)
     if t === nothing
         ax.set_title(latexstring(@sprintf("Slice at \$%s = %1.2f\$", slice_dir, slice_coord)))
     else
@@ -247,7 +248,8 @@ function plot_slice(cache::Tuple, u::CellField, v::CellField, b::CellField; t=no
     cb.ax.ticklabel_format(style="sci", scilimits=(-2, 2), useMathText=true)
     # cb.set_ticks([0, cb_max])
     # cb.set_ticklabels(["0", "Max"])
-    ax.contour(x1, x2, bs', colors="k", linewidths=0.5, linestyles="-", alpha=0.3, levels=-0.95:0.05:-0.05)
+    cs = ax.contour(x1, x2, bs', colors="k", linewidths=0.5, linestyles="-", alpha=0.3, levels=-0.95:0.05:-0.05)
+    ax.clabel(cs, inline=true, fontsize=4)
     n = length(x1)
     # rescale arrows if speed is too large
     for i ∈ 1:n, j ∈ 1:n
@@ -307,7 +309,7 @@ function plot_profiles(cache::Tuple, ux::CellField, uy::CellField, uz::CellField
     uxs = nan_eval(cache_ux, ux, points)
     uys = nan_eval(cache_uy, uy, points)
     uzs = nan_eval(cache_uz, uz, points)
-    bs  = nan_eval(cache_b,  b,  points)
+    bs = [N²*points[i, j][3] + nan_eval(cache_b, b, points[i, j]) for i ∈ axes(points, 1), j ∈ axes(points, 2)]
 
     # compute bz
     dz = z[2] - z[1]
@@ -322,6 +324,7 @@ function plot_profiles(cache::Tuple, ux::CellField, uy::CellField, uz::CellField
     ux_mask = (isnan.(uxs) .== 0)
     uy_mask = (isnan.(uys) .== 0)
     uz_mask = (isnan.(uzs) .== 0)
+    bs_mask = (isnan.(bs ) .== 0)
     bz_mask = (isnan.(bzs) .== 0)
 
     # # print integrals
@@ -330,15 +333,17 @@ function plot_profiles(cache::Tuple, ux::CellField, uy::CellField, uz::CellField
     # @printf("∫ w dz = %e\n", trapz(uzs[uz_mask], z[uz_mask]))
 
     # plot
-    fig, ax = plt.subplots(1, 4, figsize=(8, 3.2))
+    fig, ax = plt.subplots(1, 5, figsize=(8, 3.2))
     ax[1].set_ylabel(L"z")
     ax[1].set_xlabel(L"u")
     ax[2].set_xlabel(L"v")
     ax[3].set_xlabel(L"w")
-    ax[4].set_xlabel(L"\partial_z b")
+    ax[4].set_xlabel(L"b")
+    ax[5].set_xlabel(L"\partial_z b")
     ax[2].set_yticklabels([])
     ax[3].set_yticklabels([])
     ax[4].set_yticklabels([])
+    ax[5].set_yticklabels([])
     for a ∈ ax 
         a.set_ylim(z[1], 0) 
         a.ticklabel_format(axis="x", style="sci", scilimits=(-2,2))
@@ -347,11 +352,13 @@ function plot_profiles(cache::Tuple, ux::CellField, uy::CellField, uz::CellField
         a.spines["left"].set_visible(false)
         a.axvline(0, color="k", linewidth=0.5, linestyle="-")
     end
-    ax[4].set_xlim(0, 1.1*nan_max(abs.(bzs)))
+    ax[4].set_xlim(1.1*nan_min(bs), 1.1*nan_max(bs))
+    ax[5].set_xlim(0, 1.1*nan_max(abs.(bzs)))
     ax[1].plot(uxs[ux_mask], z[ux_mask])
     ax[2].plot(uys[uy_mask], z[uy_mask])
     ax[3].plot(uzs[uz_mask], z[uz_mask])
-    ax[4].plot(bzs[bz_mask], z[bz_mask])
+    ax[4].plot( bs[bs_mask], z[bs_mask])
+    ax[5].plot(bzs[bz_mask], z[bz_mask])
     if t === nothing
         ax[1].set_title(latexstring(@sprintf("x = %1.2f, \\quad y = %1.2f", x, y)))
     else
